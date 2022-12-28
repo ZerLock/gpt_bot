@@ -18,3 +18,7 @@ main
 
 # Env
 .envrc
+
+# Infrastructure
+Dockerfile
+docker-compose
