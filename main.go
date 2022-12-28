@@ -67,8 +67,6 @@ func SearchHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	fmt.Println("splitted", splittedContent)
-
 	// If the message is the GPT command
 	if splittedContent[0] == "!gpt" {
 		// Get command arguments string
