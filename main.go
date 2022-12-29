@@ -86,7 +86,7 @@ func SearchHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		case text := <-response:
 			// Edit sent message with GPT response or GPT error response
 			s.ChannelMessageEdit(m.ChannelID, message.ID, text)
-		case <-time.After(15 * time.Second):
+		case <-time.After(30 * time.Second):
 			// Edit send message with timeout error
 			s.ChannelMessageEdit(m.ChannelID, message.ID, "Désolé chakal chu ko là mon reuf")
 		}
