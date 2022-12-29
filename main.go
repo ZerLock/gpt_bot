@@ -70,7 +70,7 @@ func SearchHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	// If the message is the GPT command
 	if splittedContent[0] == "!gpt" {
 		// Get command arguments string
-		args := strings.Join(splittedContent[1:len(splittedContent)], " ")
+		args := strings.Join(splittedContent[1:], " ")
 
 		// Request to ChatGPT
 		resp, err := gptClient.Completion(nil, openaigo.CompletionRequestBody{
