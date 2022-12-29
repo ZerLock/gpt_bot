@@ -69,19 +69,27 @@ func SearchHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	// If the message is the GPT command
 	if splittedContent[0] == "!gpt" {
+
+		// Set default response message by an error
+		response := "Oups! An error occured..."
+
 		// Get command arguments string
 		args := strings.Join(splittedContent[1:], " ")
 
+		// Send message before processing GPT search
+		message, _ := s.ChannelMessageSendReply(m.ChannelID, "Processing...", m.Reference())
+
 		// Request to ChatGPT
-		resp, err := gptClient.Completion(nil, openaigo.CompletionRequestBody{
+		gptResp, err := gptClient.Completion(nil, openaigo.CompletionRequestBody{
 			Model:     "text-davinci-003",
 			Prompt:    []string{args},
 			MaxTokens: 2048,
 		})
-		if err != nil {
-			s.ChannelMessageSendReply(m.ChannelID, "Oups! An error occured...", m.Reference())
-			return
+		if err == nil {
+			response = gptResp.Choices[0].Text
 		}
-		s.ChannelMessageSendReply(m.ChannelID, resp.Choices[0].Text, m.Reference())
+
+		// Edit sent message with GPT response or error response
+		s.ChannelMessageEdit(m.ChannelID, message.ID, response)
 	}
 }
