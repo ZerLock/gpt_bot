@@ -95,16 +95,16 @@ func SearchHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 func GetGptResponse(args string, response chan string) {
 
-	// Set default response message by an error
-	response <- "Oups! An error occured..."
-
 	// Request to ChatGPT
 	gptResp, err := gptClient.Completion(nil, openaigo.CompletionRequestBody{
 		Model:     "text-davinci-003",
 		Prompt:    []string{args},
 		MaxTokens: 2048, // Max for this model
 	})
-	if err == nil {
-		response <- gptResp.Choices[0].Text
+	if err != nil {
+		response <- "Oups! An error occured..."
 	}
+
+	// Set default response message by an error
+	response <- gptResp.Choices[0].Text
 }
