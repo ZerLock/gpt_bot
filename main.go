@@ -6,6 +6,7 @@ import (
 	"os/signal"
 	"strings"
 	"syscall"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/otiai10/openaigo"
@@ -70,8 +71,8 @@ func SearchHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	// If the message is the GPT command
 	if splittedContent[0] == "!gpt" {
 
-		// Set default response message by an error
-		response := "Oups! An error occured..."
+		// Response text message
+		response := make(chan string)
 
 		// Get command arguments string
 		args := strings.Join(splittedContent[1:], " ")
@@ -79,17 +80,31 @@ func SearchHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		// Send message before processing GPT search
 		message, _ := s.ChannelMessageSendReply(m.ChannelID, "Processing...", m.Reference())
 
-		// Request to ChatGPT
-		gptResp, err := gptClient.Completion(nil, openaigo.CompletionRequestBody{
-			Model:     "text-davinci-003",
-			Prompt:    []string{args},
-			MaxTokens: 2048,
-		})
-		if err == nil {
-			response = gptResp.Choices[0].Text
+		// Handle timeouts
+		go GetGptResponse(args, response)
+		select {
+		case text := <-response:
+			// Edit sent message with GPT response or GPT error response
+			s.ChannelMessageEdit(m.ChannelID, message.ID, text)
+		case <-time.After(15 * time.Second):
+			// Edit send message with timeout error
+			s.ChannelMessageEdit(m.ChannelID, message.ID, "Désolé chakal chu ko là mon reuf")
 		}
+	}
+}
 
-		// Edit sent message with GPT response or error response
-		s.ChannelMessageEdit(m.ChannelID, message.ID, response)
+func GetGptResponse(args string, response chan string) {
+
+	// Set default response message by an error
+	response <- "Oups! An error occured..."
+
+	// Request to ChatGPT
+	gptResp, err := gptClient.Completion(nil, openaigo.CompletionRequestBody{
+		Model:     "text-davinci-003",
+		Prompt:    []string{args},
+		MaxTokens: 2048, // Max for this model
+	})
+	if err == nil {
+		response <- gptResp.Choices[0].Text
 	}
 }
