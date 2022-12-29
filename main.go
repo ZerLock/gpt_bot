@@ -74,8 +74,9 @@ func SearchHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 		// Request to ChatGPT
 		resp, err := gptClient.Completion(nil, openaigo.CompletionRequestBody{
-			Model:  "text-davinci-003",
-			Prompt: []string{args},
+			Model:     "text-davinci-003",
+			Prompt:    []string{args},
+			MaxTokens: 4096,
 		})
 		if err != nil {
 			s.ChannelMessageSendReply(m.ChannelID, "Oups! An error occured...", m.Reference())
