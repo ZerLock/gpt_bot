@@ -101,7 +101,7 @@ func GetGptResponse(args string, response chan string) {
 		Prompt:    []string{args},
 		MaxTokens: 2048, // Max for this model
 	})
-	if err != nil {
+	if err != nil || len(gptResp.Choices) < 1 {
 		response <- "Oups! An error occured..."
 	}
 
