@@ -6,7 +6,6 @@ import (
 	"os/signal"
 	"strings"
 	"syscall"
-	"time"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/otiai10/openaigo"
@@ -72,24 +71,24 @@ func SearchHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if splittedContent[0] == "!gpt" {
 
 		// Response text message
-		response := make(chan string)
+		// response := make(chan string)
 
 		// Get command arguments string
-		args := strings.Join(splittedContent[1:], " ")
+		// args := strings.Join(splittedContent[1:], " ")
 
 		// Send message before processing GPT search
-		message, _ := s.ChannelMessageSendReply(m.ChannelID, "Processing...", m.Reference())
+		s.ChannelMessageSendReply(m.ChannelID, "Tu sais pas coder sans ChatGPT mon reuf ??", m.Reference())
 
 		// Handle timeouts
-		go GetGptResponse(args, response)
-		select {
-		case text := <-response:
-			// Edit sent message with GPT response or GPT error response
-			s.ChannelMessageEdit(m.ChannelID, message.ID, text)
-		case <-time.After(1 * time.Minute):
-			// Edit send message with timeout error
-			s.ChannelMessageEdit(m.ChannelID, message.ID, "Désolé chakal chu ko là mon reuf")
-		}
+		// go GetGptResponse(args, response)
+		// select {
+		// case text := <-response:
+		// 	// Edit sent message with GPT response or GPT error response
+		// 	s.ChannelMessageEdit(m.ChannelID, message.ID, text)
+		// case <-time.After(1 * time.Minute):
+		// 	// Edit send message with timeout error
+		// 	s.ChannelMessageEdit(m.ChannelID, message.ID, "Désolé chakal chu ko là mon reuf")
+		// }
 	}
 }
 
