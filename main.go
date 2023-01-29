@@ -14,6 +14,7 @@ import (
 )
 
 var gptClient *openaigo.Client
+var gptContext context.Context
 
 func main() {
 
@@ -29,6 +30,7 @@ func main() {
 
 	// Init clients
 	gptClient = openaigo.NewClient(gptToken)
+	gptContext = context.Background()
 	dg, err := discordgo.New("Bot " + discordToken)
 	if err != nil {
 		panic(err)
@@ -97,7 +99,7 @@ func SearchHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 func GetGptResponse(args string, response chan string) {
 
 	// Request to ChatGPT
-	gptResp, err := gptClient.Completion(context.Background(), openaigo.CompletionRequestBody{
+	gptResp, err := gptClient.Completion(gptContext, openaigo.CompletionRequestBody{
 		Model:     "text-davinci-003",
 		Prompt:    []string{args},
 		MaxTokens: 2048, // Max for this model
