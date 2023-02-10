@@ -17,7 +17,6 @@ var gptClient *openaigo.Client
 var gptContext context.Context
 
 func main() {
-
 	// Get Tokens
 	gptToken := os.Getenv("GPT_TOKEN")
 	if gptToken == "" {
@@ -45,15 +44,13 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	defer dg.Close()
 
 	// Wait close
 	fmt.Println("Bot is now running. Press CTRL-C to exit...")
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	<-sc
-
-	// Clearly close
-	dg.Close()
 }
 
 func SearchHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
@@ -97,7 +94,6 @@ func SearchHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 }
 
 func GetGptResponse(args string, response chan string) {
-
 	// Request to ChatGPT
 	gptResp, err := gptClient.Completion(gptContext, openaigo.CompletionRequestBody{
 		Model:     "text-davinci-003",
@@ -106,8 +102,8 @@ func GetGptResponse(args string, response chan string) {
 	})
 	if err != nil || len(gptResp.Choices) < 1 {
 		response <- "Oups! An error occured..."
-	} else {
-		// Set default response message by an error
-		response <- gptResp.Choices[0].Text
-	}
+		return 
+	} 
+	// Set default response message by an error
+	response <- gptResp.Choices[0].Text
 }
