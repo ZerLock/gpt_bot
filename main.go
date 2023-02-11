@@ -81,7 +81,7 @@ func SearchHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		message, _ := s.ChannelMessageSendReply(m.ChannelID, "Processing...", m.Reference())
 
 		// Handle timeouts
-		go GetGptResponse(args, response)
+		go IsContentFlagged(args, response)
 		select {
 		case text := <-response:
 			// Edit sent message with GPT response or GPT error response
@@ -91,6 +91,33 @@ func SearchHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			s.ChannelMessageEdit(m.ChannelID, message.ID, "Désolé chakal chu ko là mon reuf")
 		}
 	}
+}
+
+func IsContentFlagged(args string, response chan string) {
+	// Request to ChatGPT
+	gstResp, err := gptClient.CreateModeration(gptContext, openaigo.ModerationCreateRequestBody{
+		Input: args,
+		Model: "text-moderation-stable",
+	})
+
+	// Get categories
+	cat := gstResp.Results[0].Categories
+
+	// Check if the content was flagged
+	if err != nil ||
+		cat.Hate ||
+		cat.HateThreatening ||
+		cat.SelfHarm ||
+		cat.Sexual ||
+		cat.SexualMinors ||
+		cat.Violence ||
+		cat.ViolenceGraphic {
+		response <- "Oups! The content is not allowed by OpenAI!"
+		return
+	}
+
+	// The content is legit, now compute the response
+	GetGptResponse(args, response)
 }
 
 func GetGptResponse(args string, response chan string) {
