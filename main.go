@@ -102,8 +102,8 @@ func GetGptResponse(args string, response chan string) {
 	})
 	if err != nil || len(gptResp.Choices) < 1 {
 		response <- "Oups! An error occured..."
-		return 
-	} 
+		return
+	}
 	// Set default response message by an error
 	response <- gptResp.Choices[0].Text
 }
